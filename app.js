@@ -22,14 +22,29 @@ app.post("/bookmarks", (req, res) => {
         res.status(500).send("Failed to save a bookmark");
       } else {
         connection.query(
-          `SELECT * FROM bookmark WHERE id=${results.insertId}`,
-          (err, results2) => {
+          `SELECT * FROM bookmark WHERE id=?`,
+          results.insertId,
+          (_, results2) => {
             res.status(201).json(results2[0]);
           }
         );
       }
     });
   }
+});
+
+app.get("/bookmarks/:id", (req, res) => {
+  connection.query(
+    `SELECT * FROM bookmark WHERE id=?`,
+    req.params.id,
+    (err, results) => {
+      if (err || results.length === 0) {
+        res.status(404).json({ error: "Bookmark not found" });
+      } else {
+        res.status(200).json(results[0]);
+      }
+    }
+  );
 });
 
 module.exports = app;
